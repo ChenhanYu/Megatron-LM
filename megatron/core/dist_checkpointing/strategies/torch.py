@@ -53,6 +53,9 @@ from .checkpointable import CheckpointableShardedTensor, LocalShardsContainer
 
 try:
     from nvidia_resiliency_ext.checkpointing.async_ckpt.core import AsyncRequest as NVRxAsyncRequest
+    from nvidia_resiliency_ext.checkpointing.async_ckpt.filesystem_async import (  # noqa: F401
+        get_write_results_queue,
+    )
     from nvidia_resiliency_ext.checkpointing.async_ckpt.state_dict_saver import (
         CheckpointMetadataCache,
     )
