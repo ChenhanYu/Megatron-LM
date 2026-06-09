@@ -82,6 +82,10 @@ def is_nvrx_min_version(version: str = NVRX_MIN_VERSION) -> bool:
     except (ImportError, ModuleNotFoundError):
         HAVE_NVRX = False
 
-    nvrx_version = str(nvrx.__version__) if HAVE_NVRX else "0.0.0"
+    # Older nvidia_resiliency_ext (e.g. the one shipped in nemo:25.11.nemotron_3_nano)
+    # doesn't expose __version__. Treat that case as "unknown / minimum" so we don't
+    # crash at import time when our newer Megatron-LM is bind-mounted into an older
+    # container (the OMNIML-5029 scenario).
+    nvrx_version = str(getattr(nvrx, "__version__", "0.0.0")) if HAVE_NVRX else "0.0.0"
 
     return PkgVersion(nvrx_version) >= PkgVersion(version)
