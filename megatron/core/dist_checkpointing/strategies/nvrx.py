@@ -41,9 +41,13 @@ def has_nvrx_async_support() -> bool:
         getattr(state_dict_saver, "save_state_dict_async_finalize", None),
         getattr(state_dict_saver, "save_state_dict_async_plan", None),
     )
-    assert (
-        is_nvrx_min_version()
-    ), f"Minimum required nvidia-resiliency-ext package version is {NVRX_MIN_VERSION}."
+    # Soft-fail when the installed nvidia-resiliency-ext doesn't meet the min
+    # version (this includes older builds that don't expose __version__, where
+    # is_nvrx_min_version() conservatively returns False). The caller treats a
+    # False return as "no async support" and falls back to the synchronous
+    # dist-checkpoint path — strictly better than crashing the import chain.
+    if not is_nvrx_min_version():
+        return False
 
     return all(symbol is not None for symbol in required_symbols) and hasattr(
         filesystem_async, "_results_queue"
